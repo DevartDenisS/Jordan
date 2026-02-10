@@ -1,28 +1,56 @@
+USE [SalesProdTS];
+GO
+
 SET NOCOUNT ON;
+GO
 
--------------------------------------------------------------------------------
--- INSERT INTO PERSON
--------------------------------------------------------------------------------
-INSERT INTO dbo.PERSON (FIRSTNAME, LASTNAME, TITLE)
-VALUES
-    (N'John',   N'Smith',   N'Mr'),
-    (N'Emily',  N'Johnson', N'Ms'),
-    (N'Robert', N'Brown',   N'Mr');
+/* =========================================================
+   DROP FOREIGN KEYS
+   ========================================================= */
 
--------------------------------------------------------------------------------
--- INSERT INTO CUSTOMER
--------------------------------------------------------------------------------
-INSERT INTO dbo.CUSTOMER (PERSONID, ACCOUNTNUMBER, EMAIL)
-VALUES
-    (1, N'CUST-0001', N'john.smith@customer.example.com'),
-    (2, N'CUST-0002', N'emily.johnson@customer.example.com'),
-    (3, N'CUST-0003', N'robert.brown@customer.example.com');
+IF EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_Customer_Person'
+)
+BEGIN
+    ALTER TABLE [dbo].[Customer]
+        DROP CONSTRAINT [FK_Customer_Person];
+END
+GO
 
--------------------------------------------------------------------------------
--- INSERT INTO VENDOR
--------------------------------------------------------------------------------
-INSERT INTO dbo.VENDOR (PERSONID, ACCOUNTNUMBER, EMAIL, PHONE)
-VALUES
-    (1, N'VEND-1001', N'john.smith@vendor.example.com',  N'+1-555-1001'),
-    (2, N'VEND-1002', N'emily.johnson@vendor.example.com',N'+1-555-1002'),
-    (3, N'VEND-1003', N'robert.brown@vendor.example.com', N'+1-555-1003');
+IF EXISTS (
+    SELECT 1
+    FROM sys.foreign_keys
+    WHERE name = 'FK_Vendor_Person'
+)
+BEGIN
+    ALTER TABLE [dbo].[Vendor]
+        DROP CONSTRAINT [FK_Vendor_Person];
+END
+GO
+
+/* =========================================================
+   DROP TABLES (DEPENDENCY ORDER)
+   ========================================================= */
+
+IF OBJECT_ID('[dbo].[Customer]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Customer];
+END
+GO
+
+IF OBJECT_ID('[dbo].[Vendor]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Vendor];
+END
+GO
+
+IF OBJECT_ID('[dbo].[Person]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Person];
+END
+GO
+
+PRINT 'Tables Customer, Vendor, Person were dropped successfully.';
+GO
