@@ -1,4 +1,4 @@
-USE [TeamCityProd];
+-- USE [TeamCityProd];
 GO
 
 /* Delete in correct order because of FK */
